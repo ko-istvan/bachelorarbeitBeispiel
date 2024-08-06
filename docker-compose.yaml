@@ -1,0 +1,19 @@
+# The Jaeger UI is available at localhost:16686
+services: 
+  jaeger:
+    image: jaegertracing/all-in-one:${JAEGER_IMAGE_TAG:-latest}
+    ports:
+      - "16686:16686"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: [ "--config=/etc/otel-collector.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector.yaml
+    ports:
+      - "4317:4317"
+
+  beispielprogramm:
+    build: .
+    command: ./main

@@ -1,0 +1,31 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: otel-collector:4317
+
+processors:
+  filter:
+    error_mode: ignore
+    traces:
+      span:
+        - attributes["rpc.service"] == "grpc.health.v1.Health"
+  batch/traces:
+    timeout: 1s
+    send_batch_size: 50
+
+exporters:
+  otlp:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  logging:
+    verbosity: detailed
+    sampling_initial: 5
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [filter, batch/traces]
+      exporters: [logging, otlp]
